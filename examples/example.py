@@ -1,132 +1,118 @@
-"""Single-GPU training example."""
-import logging
-import os
-
-import rich.logging
 import torch
-from torch import Tensor, nn
-from torch.nn import functional as F
-from torch.utils.data import DataLoader, random_split
-from torchvision import transforms
-from torchvision.datasets import MNIST, CIFAR100, FakeData
-from torchvision.models import resnet18
-from tqdm import tqdm
+import torchvision
+import torchvision.transforms as transforms
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
 
-from taranis.core.datasets import Dataloader
-from taranis.core.event.manager import EventManager, Saver
-from taranis.core.event.accuracy import Accuracy, OnlineLoss, Progress, Validation
+import matplotlib.pyplot as plt
+import numpy as np
 
-def main():
-    training_epochs = 10
-    learning_rate = 5e-4
-    weight_decay = 1e-4
-    batch_size = 128
 
-    # Check that the GPU is available
-    assert torch.cuda.is_available() and torch.cuda.device_count() > 0
-    device = torch.device("cuda", 0)
+import milatools.torch.distributed as dist
 
-    # Setup logging (optional, but much better than using print statements)
-    logging.basicConfig(
-        level=logging.DEBUG,
-        handlers=[rich.logging.RichHandler(markup=True)],  # Very pretty, uses the `rich` package.
+PATH = "./cifar_net.pth"
+
+transform = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+    ]
+)
+
+
+class Net(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = torch.flatten(x, 1)  # flatten all dimensions except batch
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+
+@dist.record
+def train():
+    trainset = torchvision.datasets.CIFAR10(
+        root="./data",
+        train=True,
+        download=dist.has_dataset_autority(),
+        transform=transform,
     )
 
-    # Create a model and move it to the GPU.
-    model = resnet18(num_classes=100)
-    model = model.to(device=device)
+    # Wait for the main worker to finish downloading the dataset
+    dist.barrier()
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-
-    # Setup CIFAR10
-    num_workers = 1 # get_num_workers()
-    dataset_path = os.environ.get("SLURM_TMPDIR", "../dataset")
-    train_dataset, valid_dataset, test_dataset = make_datasets(dataset_path)
-
-    loader = Dataloader(
-        train=train_dataset,
-        valid=valid_dataset,
-        test=test_dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
+    trainloader = torch.utils.data.DataLoader(
+        trainset,
+        batch_size=4,
+        shuffle=True,
+        num_workers=2,
     )
 
-    events = EventManager(Saver())
-    events.register(Accuracy())
-    events.register(OnlineLoss())
-    events.register(Validation(loader.validation(), model, device))
-    events.register(Progress(training_epochs, len(loader.train()), frequency=1))
-    
-    events.new_train()
-    for epoch in range(training_epochs):
-        events.new_epoch(epoch=epoch)
+    model = Net()
+    net = dist.dataparallel(model)
 
-        # Set the model in training mode (this is important for e.g. BatchNorm and Dropout layers)
-        model.train()
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
-        # Training loop
-        for i, batch in enumerate(loader.train()):
-            events.new_batch(batch_id=i, batch=batch)
+    for epoch in range(2):  # loop over the dataset multiple times
 
-            # Move the batch to the GPU before we pass it to the model
-            batch = tuple(item.to(device) for item in batch)
-            x, y = batch
+        running_loss = 0.0
+        for i, data in enumerate(trainloader, 0):
+            # get the inputs; data is a list of [inputs, labels]
+            inputs, labels = data
 
-            # Forward pass
-            logits: Tensor = model(x)
-            loss = F.cross_entropy(logits, y)
-
+            # zero the parameter gradients
             optimizer.zero_grad()
+
+            # forward + backward + optimize
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
 
-            events.end_batch(loss=loss, prediction=logits, label=y)
-        events.end_epoch(epoch=epoch)
-    events.end_train()
-    print("Done!")
+            # print statistics
+            running_loss += loss.item()
+            if i % 2000 == 1999:  # print every 2000 mini-batches
+                print(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}")
+                running_loss = 0.0
 
+    print("Finished Training")
 
-def make_datasets(
-    dataset_path: str,
-    val_split: float = 0.1,
-    val_split_seed: int = 42,
-):
-    """Returns the training, validation, and test splits for CIFAR10.
-
-    NOTE: We don't use image transforms here for simplicity.
-    Having different transformations for train and validation would complicate things a bit.
-    Later examples will show how to do the train/val/test split properly when using transforms.
-    """
-    train_dataset = FakeData(
-        image_size=(3, 32, 32),
-        # root=dataset_path, 
-        transform=transforms.ToTensor(), 
-        # download=True, 
-        # train=True
-    )
-    test_dataset = FakeData(
-        size=100,
-        image_size=(3, 32, 32),
-        # root=dataset_path, 
-        transform=transforms.ToTensor(), 
-        # download=True, 
-        # train=False
-    )
-    # Split the training dataset into a training and validation set.
-    train_dataset, valid_dataset = random_split(
-        train_dataset, ((1 - val_split), val_split), torch.Generator().manual_seed(val_split_seed)
-    )
-    return train_dataset, valid_dataset, test_dataset
-
-
-def get_num_workers() -> int:
-    """Gets the optimal number of DatLoader workers to use in the current job."""
-    if "SLURM_CPUS_PER_TASK" in os.environ:
-        return int(os.environ["SLURM_CPUS_PER_TASK"])
-    if hasattr(os, "sched_getaffinity"):
-        return len(os.sched_getaffinity(0))
-    return torch.multiprocessing.cpu_count()
+    # Only one worker should save the network
+    if dist.has_weight_autority():
+        torch.save(model.state_dict(), PATH)
 
 
 if __name__ == "__main__":
-    main()
+    # Usage:
+    #
+    #   # Works with a single GPU
+    #   python distributed.py
+    #
+    #   # Works with multiple GPUs
+    #   torchrun                            \
+    #       --nproc_per_node=$GPU_COUNT     \
+    #       --nnodes=$WORLD_SIZE            \
+    #       --rdzv_id=$SLURM_JOB_ID         \
+    #       --rdzv_backend=c10d             \
+    #       --rdzv_endpoint=$RDV_ADDR       \
+    #       distributed.py
+    #
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    with dist.DistributedProcessGroup():
+        train()
