@@ -9,6 +9,8 @@
 *.pkl
 *.lock
 
+data/
+
 # StarUML documentation
 *.mdj
 

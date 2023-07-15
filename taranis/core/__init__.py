@@ -35,3 +35,4 @@ def _():
 
     with open(data_path / "data.json", encoding="utf-8") as file:
         print(json.dumps(json.load(file), indent=2))
+
