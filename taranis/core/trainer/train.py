@@ -8,7 +8,7 @@ from torch.utils.data import TensorDataset
 from ..dataset.split import TransformedDatasetClassification
 
 
-def cifar100_dataset(train=True):
+def cifar100_dataset(train=True, cache=True):
     transform = transforms.Compose([                    
         transforms.ToTensor(),                         # Transform the image to tensor
         transforms.Normalize(
@@ -23,15 +23,19 @@ def cifar100_dataset(train=True):
         download=True
     )
 
-    sizes = transform(dataset[0][0]).shape
-    inputs = torch.zeros(len(dataset), *sizes, dtype=torch.float)
-    outputs = torch.zeros(len(dataset), dtype=torch.long)
+    if cache:
+        sizes = transform(dataset[0][0]).shape
+        inputs = torch.zeros(len(dataset), *sizes, dtype=torch.float)
+        outputs = torch.zeros(len(dataset), dtype=torch.long)
 
-    for i, (x, y) in enumerate(dataset):
-        inputs[i] = transform(x)
-        outputs[i] = y
+        for i, (x, y) in enumerate(dataset):
+            inputs[i] = transform(x)
+            outputs[i] = y
 
-    return TensorDataset(inputs.cuda(), outputs.cuda())
+        return TensorDataset(inputs, outputs)
+    
+    else:
+        return TransformedDatasetClassification(dataset, transform=transform)
 
 
 def mnist_dataset(train=True):
@@ -54,10 +58,10 @@ def mnist_dataset(train=True):
         inputs[i] = transform(x)
         outputs[i] = y
 
-    return TensorDataset(inputs.cuda(), outputs.cuda())
+    return TensorDataset(inputs, outputs)
 
 
-def gpu_train(model, dataset, batch_size=4096, lr=1):
+def gpu_train(model, dataset, epoch, batch_size=4096, lr=1, lr_map=None):
     dataloader = torch.utils.data.DataLoader(
         dataset,
         batch_size = batch_size,
@@ -66,12 +70,16 @@ def gpu_train(model, dataset, batch_size=4096, lr=1):
 
     assert torch.cuda.is_available()
     # device = torch.cuda.device("cuda:0")               # HERE Get GPU device
-
+    
     cuda_model = model.cuda()                # HERE
-    optimizer = optim.Adadelta(cuda_model.parameters(), lr=lr)
-    epoch = 10
 
     for i in range(epoch):
+        epoch_lr = lr
+        if lr_map:
+            epoch_lr = lr_map.get(epoch, lr)
+
+        optimizer = optim.SGD(cuda_model.parameters(), lr=epoch_lr)
+
         losses = []
         count = 0
         for batch, labels in dataloader:
@@ -87,7 +95,7 @@ def gpu_train(model, dataset, batch_size=4096, lr=1):
             count += 1
         
         total_loss = (sum(losses) / count).item()
-        print(i, total_loss / count)
+        print(i, total_loss)
     
 
 def gpu_test_model(model, dataset, batch_size=4096):
