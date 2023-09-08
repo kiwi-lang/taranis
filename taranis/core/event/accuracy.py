@@ -1,10 +1,10 @@
 import logging
 from datetime import datetime
 
-from .observer import StandardObserver
-from ..device import sync
-
 import taranis.core.distributed.manager as distributed
+
+from ..device import sync
+from .observer import StandardObserver
 
 
 class OnlineAccuracy(StandardObserver):
@@ -18,7 +18,7 @@ class OnlineAccuracy(StandardObserver):
         self.accuracies.append(n_correct_predictions)
 
     def end_epoch(self, **kwargs):
-        accuracy = sum([acc.item() for acc in self.accuracies])
+        accuracy = sum(acc.item() for acc in self.accuracies)
         self.save(accuracy=accuracy / self.count)
 
 
@@ -32,7 +32,7 @@ class OnlineLoss(StandardObserver):
         self.count += 1
 
     def end_epoch(self, **kwargs):
-        loss = sum([loss.item() for loss in self.losses])
+        loss = sum(loss.item() for loss in self.losses)
         self.save(online_loss=loss / self.count)
 
 
@@ -41,12 +41,12 @@ class DistributedObserver(StandardObserver):
         super().__init__()
         self.rank = distributed.grank()
         self.world_size = distributed.world_size()
-        self.logger = logging.getLogger('distributed')
+        self.logger = logging.getLogger("distributed")
 
     def metrics(self, metrics=None, **kwargs):
         if self.rank >= 0 and metrics:
-            metrics['rank'] = self.rank
-            metrics['world_size'] = self.world_size
+            metrics["rank"] = self.rank
+            metrics["world_size"] = self.world_size
 
     def new_train(self, **kwargs):
         if distributed.has_metric_autority():
@@ -68,25 +68,25 @@ class Progress(StandardObserver):
         self.previous = None
 
     def metrics(self, metrics=None, **kwargs):
-        metrics['epoch'] = self.epoch
-        metrics['step'] = self.step
-    
+        metrics["epoch"] = self.epoch
+        metrics["step"] = self.step
+
         self.latest_metrics.update(metrics)
 
         if self.ended:
             self.show_stat()
-    
+
     def new_train(self, **kwargs):
         # Checkout the "checkpointing and preemption" example for more info!
         self.logger.debug("Starting training from scratch.")
 
     def _progress(self):
         return f"[{self.epoch}/{self.epochs}][{self.step}/{self.total}]"
-    
+
     def show_stat(self):
         p = self._progress()
-        loss = self.latest_metrics.get('validation_loss', float('Nan'))
-        acc = self.latest_metrics.get('validation_accuracy', float('Nan'))
+        loss = self.latest_metrics.get("validation_loss", float("Nan"))
+        acc = self.latest_metrics.get("validation_accuracy", float("Nan"))
         self.logger.debug(f"{p} loss {loss:.2f} acc: {acc:.2%}")
 
     def new_epoch(self, epoch=None, **kwargs):
@@ -105,11 +105,11 @@ class Progress(StandardObserver):
 
         now = datetime.utcnow()
         kwargs = {}
-        kwargs['datetime'] = now
+        kwargs["datetime"] = now
 
         if self.previous:
-            kwargs['elapsed'] = (now - self.previous).total_seconds()
-        
+            kwargs["elapsed"] = (now - self.previous).total_seconds()
+
         self.previous = now
         self.save(**kwargs)
 
@@ -141,7 +141,7 @@ class Validation(StandardObserver):
 
     def compute_validation(self):
         import torch
-        from torch import Tensor, nn
+        from torch import Tensor
         from torch.nn import functional as F
 
         with torch.no_grad():
@@ -165,23 +165,28 @@ class Validation(StandardObserver):
                     total_losses.append(loss.detach())
                     n_samples += batch_n_samples
                     correct_predictions += batch_correct_predictions
-    
+
             # Local
             total_loss = sum(total_losses)
             if not distributed.has_dataset_autority():
                 self.save(
-                    local_validation_loss=total_loss.items(), 
-                    loval_validation_accuracy=accuracy.item() / n_samples
+                    local_validation_loss=total_loss.items(),
+                    loval_validation_accuracy=accuracy.item() / n_samples,
                 )
 
             else:
                 rank = distributed.grank()
 
                 distributed.reduce(total_loss, dst=rank)
-                distributed.reduce(torch.as_tensor(n_samples, device=self.device), dst=rank)
+                distributed.reduce(
+                    torch.as_tensor(n_samples, device=self.device), dst=rank
+                )
                 distributed.reduce(correct_predictions, dst=rank)
-                
+
                 total_loss = total_loss / distributed.world_size()
                 accuracy = correct_predictions / n_samples
 
-                self.save(validation_loss=total_loss.items(), validation_accuracy=accuracy.item())
+                self.save(
+                    validation_loss=total_loss.items(),
+                    validation_accuracy=accuracy.item(),
+                )

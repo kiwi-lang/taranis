@@ -12,11 +12,11 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR10
 from torchvision.models import resnet18
 
+import taranis.core.distributed.manager as distributed
 from taranis.core.dataset import Dataloader
-from taranis.core.event.manager import EventManager, Saver
-from taranis.core.event.accuracy import OnlineAccuracy, OnlineLoss, Progress, Validation
 from taranis.core.device import cpu_count
-import taranis.core.distributed.manager as distributed 
+from taranis.core.event.accuracy import OnlineAccuracy, OnlineLoss, Progress, Validation
+from taranis.core.event.manager import EventManager, Saver
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     assert torch.cuda.is_available() and torch.cuda.device_count() > 0
 
     rank = distributed.rank()
-    world_size =  distributed.world_size()
+    world_size = distributed.world_size()
     is_master = distributed.has_weight_autority()
     device = distributed.device()
 
@@ -37,7 +37,9 @@ def main():
     logging.basicConfig(
         level=logging.INFO,
         format=f"[{rank}/{world_size}] %(name)s - %(message)s ",
-        handlers=[rich.logging.RichHandler(markup=True)],  # Very pretty, uses the `rich` package.
+        handlers=[
+            rich.logging.RichHandler(markup=True)
+        ],  # Very pretty, uses the `rich` package.
     )
 
     logger = logging.getLogger(__name__)
@@ -48,14 +50,14 @@ def main():
     model = distributed.dataparallel(local_model, device_ids=[rank], output_device=rank)
 
     optimizer = torch.optim.AdamW(
-        model.parameters(), 
-        lr=learning_rate, 
-        weight_decay=weight_decay
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay
     )
 
     # Setup CIFAR10
     dataset_path = os.environ.get("SLURM_TMPDIR", "../dataset")
-    train_dataset, valid_dataset, test_dataset = make_datasets(dataset_path, is_master=is_master)
+    train_dataset, valid_dataset, test_dataset = make_datasets(
+        dataset_path, is_master=is_master
+    )
 
     loader = Dataloader(
         train=train_dataset,
@@ -70,11 +72,11 @@ def main():
     # in advance. You might want to adjust the learning rate and other hyper-parameters though.
     if is_master:
         logger.info(f"Effective batch size: {batch_size * world_size}")
-    
+
     train_dataloader = loader.train(train_dataset)
     valid_dataloader = loader.validation(valid_dataset)
     test_dataloader = loader.test(test_dataset)
-    
+
     events = EventManager(Saver())
     events.register(OnlineAccuracy())
     events.register(OnlineLoss())
@@ -135,16 +137,16 @@ def make_datasets(
         torch.distributed.barrier()
 
     train_dataset = CIFAR10(
-        root=dataset_path, 
-        transform=transforms.ToTensor(), 
+        root=dataset_path,
+        transform=transforms.ToTensor(),
         download=distributed.has_dataset_autority(),
-        train=True
+        train=True,
     )
     test_dataset = CIFAR10(
-        root=dataset_path, 
-        transform=transforms.ToTensor(), 
-        download=distributed.has_dataset_autority(), 
-        train=False
+        root=dataset_path,
+        transform=transforms.ToTensor(),
+        download=distributed.has_dataset_autority(),
+        train=False,
     )
 
     # Join the workers waiting in the barrier above. They can now load the datasets from disk.
@@ -153,7 +155,9 @@ def make_datasets(
 
     # Split the training dataset into a training and validation set.
     train_dataset, valid_dataset = random_split(
-        train_dataset, ((1 - val_split), val_split), torch.Generator().manual_seed(val_split_seed)
+        train_dataset,
+        ((1 - val_split), val_split),
+        torch.Generator().manual_seed(val_split_seed),
     )
     return train_dataset, valid_dataset, test_dataset
 

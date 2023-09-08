@@ -1,23 +1,23 @@
-
 import torch
 import torch.nn as nn
-from torch import Tensor
 import torch.nn.functional as F
+from torch import Tensor
 
 
 class MaskLayer(nn.Module):
     """Learn a mask to extract features that are most useful
-    
+
     That should promote sparsity as it will cancel some inputs
     Might increase robustness as pixel outside of the main focus will hae less impact
     """
-    def __init__(self, size, allow_negative:bool = False, device=None, dtype=None):
-        factory_kwargs = {'device': device, 'dtype': dtype}
+
+    def __init__(self, size, allow_negative: bool = False, device=None, dtype=None):
+        factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
         self.weight = nn.Parameter(torch.empty(size, **factory_kwargs))
         self.reset_parameters()
         self.allow_negative = allow_negative
-        
+
     def reset_parameters(self) -> None:
         self.weight.data.fill_(0)
         # init.kaiming_uniform_(self.weight, a=math.sqrt(5))
@@ -36,24 +36,21 @@ def LinearIdentity(in_features, out_features):
     return layer
 
 
-
 def simple_conv2d(m, k, **kwargs):
-    """  m:        inC x  H x  W
-         k: outC x inC x kH x kW """
-    
+    """m:        inC x  H x  W
+    k: outC x inC x kH x kW"""
+
     x = F.conv2d(m.view(1, *m.shape), k, **kwargs)
     n, c, h, w = x.shape
     return x.view(c, h, w)
 
 
-
-
 def conv2d_iwk(images, kernels, **kwargs):
-    """ Apply N kernels to a batch of N images
+    """Apply N kernels to a batch of N images
 
-        Images : N x inC x H x W
-        Kernels: N x outC x inC x kH x kW
-        Output : N x outC x size(Conv2d)
+    Images : N x inC x H x W
+    Kernels: N x outC x inC x kH x kW
+    Output : N x outC x size(Conv2d)
     """
 
     data = []

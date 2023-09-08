@@ -1,6 +1,3 @@
-
-
-
 class Observer:
     _events = None
     _manager = None
@@ -9,9 +6,9 @@ class Observer:
         self._events = []
 
         for fun in dir(self):
-            if fun.startswith('_') or fun in ('save',):
+            if fun.startswith("_") or fun in ("save",):
                 continue
-        
+
             self._events.append(fun)
 
     def save(self, **kwargs):
@@ -19,7 +16,6 @@ class Observer:
 
 
 class StandardObserver(Observer):
-
     def new_train(self, **kwargs):
         pass
 
@@ -40,5 +36,3 @@ class StandardObserver(Observer):
 
 
 StandardObserver()
-
-

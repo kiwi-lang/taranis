@@ -1,13 +1,13 @@
-import os
-import json
 import copy
-
+import json
+import os
 
 _options = {}
 
 
 def flatten(dictionary):
     """Turn all nested dict keys into a {key}.{subkey} format"""
+
     def _flatten(dictionary):
         if dictionary == {}:
             return dictionary
@@ -20,7 +20,7 @@ def flatten(dictionary):
 
         flat_sub_dictionary = _flatten(value)
         for flat_sub_key in list(flat_sub_dictionary.keys()):
-            flat_key = key + '.' + flat_sub_key
+            flat_key = key + "." + flat_sub_key
             flat_sub_dictionary[flat_key] = flat_sub_dictionary.pop(flat_sub_key)
 
         new_dictionary = flat_sub_dictionary
@@ -33,7 +33,7 @@ def flatten(dictionary):
 def load_configuration(file_name):
     global _options
 
-    options = json.load(open(file_name, 'r'))
+    options = json.load(open(file_name))
     _options = flatten(options)
 
 
@@ -47,8 +47,8 @@ def options(name, default, type=str):
     Environment variables are use as the ultimate overrides
     """
 
-    env_name = name.upper().replace('.', '_')
-    value = os.getenv(f'TARANIS_{env_name}', None)
+    env_name = name.upper().replace(".", "_")
+    value = os.getenv(f"TARANIS_{env_name}", None)
 
     if not value:
         return type(_options.get(name, default))

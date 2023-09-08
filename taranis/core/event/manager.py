@@ -1,7 +1,7 @@
 from collections import defaultdict
-from typing import List
-from functools import partial
 from copy import deepcopy
+from functools import partial
+from typing import List
 
 from .observer import Observer
 
@@ -19,7 +19,7 @@ class EventManager:
         self.observers: List[Observer] = []
         self.handlers = defaultdict(list)
         self.saver = saver
-        
+
     def emit_event(self, name, **kwargs):
         self.metrics = dict()
 
@@ -27,13 +27,15 @@ class EventManager:
             getattr(handler, name)(**kwargs)
 
         if self.metrics:
-            assert name != 'metrics', 'Cannot save metrics, modify the dictionary directly'
+            assert (
+                name != "metrics"
+            ), "Cannot save metrics, modify the dictionary directly"
             metrics = deepcopy(self.metrics)
-            self.emit_event('metrics', metrics=metrics)
+            self.emit_event("metrics", metrics=metrics)
 
             if self.saver:
                 self.saver.metrics(**metrics)
-        
+
         self.metrics = dict()
 
     def save(self, **kwargs):
@@ -42,9 +44,9 @@ class EventManager:
     def register(self, observer):
         self.observers.append(observer)
         observer._manager = self
-        
+
         for event in observer._events:
             self.handlers[event].append(observer)
 
-    def __getattr__(self, __name: str) :
+    def __getattr__(self, __name: str):
         return partial(self.emit_event, __name)

@@ -1,5 +1,6 @@
-import torch
 import os
+
+import torch
 
 CUDA = torch.cuda.is_available()
 

@@ -1,7 +1,6 @@
 import torch
-import torch.optim as optim
 import torch.nn.functional as F
-
+import torch.optim as optim
 
 
 def generate_image(model, input_shape, label, lr=100, confidence_target=0.99):
@@ -11,7 +10,9 @@ def generate_image(model, input_shape, label, lr=100, confidence_target=0.99):
     for param in model.parameters():
         param.require_grads = False
 
-    return tweak_image(model, torch.zeros(1, *input_shape), label, lr, confidence_target)
+    return tweak_image(
+        model, torch.zeros(1, *input_shape), label, lr, confidence_target
+    )
 
 
 def tweak_image(model, original, label, lr=1, confidence_target=0.99, max_iter=1000):

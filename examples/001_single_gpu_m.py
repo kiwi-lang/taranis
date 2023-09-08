@@ -26,7 +26,9 @@ def main():
     # Setup logging (optional, but much better than using print statements)
     logging.basicConfig(
         level=logging.INFO,
-        handlers=[rich.logging.RichHandler(markup=True)],  # Very pretty, uses the `rich` package.
+        handlers=[
+            rich.logging.RichHandler(markup=True)
+        ],  # Very pretty, uses the `rich` package.
     )
 
     logger = logging.getLogger(__name__)
@@ -35,7 +37,9 @@ def main():
     model = resnet18(num_classes=10)
     model.to(device=device)
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay
+    )
 
     # Setup CIFAR10
     num_workers = get_num_workers()
@@ -104,7 +108,9 @@ def main():
         progress_bar.close()
 
         val_loss, val_accuracy = validation_loop(model, valid_dataloader, device)
-        logger.info(f"Epoch {epoch}: Val loss: {val_loss:.3f} accuracy: {val_accuracy:.2%}")
+        logger.info(
+            f"Epoch {epoch}: Val loss: {val_loss:.3f} accuracy: {val_accuracy:.2%}"
+        )
 
     print("Done!")
 
@@ -154,7 +160,9 @@ def make_datasets(
     )
     # Split the training dataset into a training and validation set.
     train_dataset, valid_dataset = random_split(
-        train_dataset, ((1 - val_split), val_split), torch.Generator().manual_seed(val_split_seed)
+        train_dataset,
+        ((1 - val_split), val_split),
+        torch.Generator().manual_seed(val_split_seed),
     )
     return train_dataset, valid_dataset, test_dataset
 

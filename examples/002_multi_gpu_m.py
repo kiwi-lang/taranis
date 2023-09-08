@@ -31,7 +31,9 @@ def main():
     logging.basicConfig(
         level=logging.INFO,
         format=f"[{rank}/{world_size}] %(name)s - %(message)s ",
-        handlers=[rich.logging.RichHandler(markup=True)],  # Very pretty, uses the `rich` package.
+        handlers=[
+            rich.logging.RichHandler(markup=True)
+        ],  # Very pretty, uses the `rich` package.
     )
 
     logger = logging.getLogger(__name__)
@@ -43,14 +45,20 @@ def main():
 
     # Wrap the model with DistributedDataParallel
     # (See https://pytorch.org/docs/stable/nn.html#torch.nn.parallel.DistributedDataParallel)
-    model = nn.parallel.DistributedDataParallel(model, device_ids=[rank], output_device=rank)
+    model = nn.parallel.DistributedDataParallel(
+        model, device_ids=[rank], output_device=rank
+    )
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay
+    )
 
     # Setup CIFAR10
     num_workers = get_num_workers()
     dataset_path = os.environ.get("SLURM_TMPDIR", "../dataset")
-    train_dataset, valid_dataset, test_dataset = make_datasets(dataset_path, is_master=is_master)
+    train_dataset, valid_dataset, test_dataset = make_datasets(
+        dataset_path, is_master=is_master
+    )
 
     # Restricts data loading to a subset of the dataset exclusive to the current process
     train_sampler = DistributedSampler(dataset=train_dataset, shuffle=True)
@@ -128,7 +136,9 @@ def main():
             # "global" metrics: calculated with the results from all workers
             # NOTE: Creating new tensors to hold the "global" values, but this isn't required.
             n_correct_predictions = local_n_correct_predictions.clone()
-            torch.distributed.all_reduce(n_correct_predictions, op=torch.distributed.ReduceOp.SUM)
+            torch.distributed.all_reduce(
+                n_correct_predictions, op=torch.distributed.ReduceOp.SUM
+            )
             # Actual (global) batch size for this step.
             n_samples = torch.as_tensor(local_n_samples, device=device)
             torch.distributed.all_reduce(n_samples, op=torch.distributed.ReduceOp.SUM)
@@ -154,7 +164,9 @@ def main():
         val_loss, val_accuracy = validation_loop(model, valid_dataloader, device)
         # NOTE: This would log the same values in all workers. Only logging on master:
         if is_master:
-            logger.info(f"Epoch {epoch}: Val loss: {val_loss:.3f} accuracy: {val_accuracy:.2%}")
+            logger.info(
+                f"Epoch {epoch}: Val loss: {val_loss:.3f} accuracy: {val_accuracy:.2%}"
+            )
 
     print("Done!")
 
@@ -243,17 +255,25 @@ def make_datasets(
         # Wait for the master process to finish downloading (reach the barrier below)
         torch.distributed.barrier()
     train_dataset = CIFAR10(
-        root=dataset_path, transform=transforms.ToTensor(), download=is_master, train=True
+        root=dataset_path,
+        transform=transforms.ToTensor(),
+        download=is_master,
+        train=True,
     )
     test_dataset = CIFAR10(
-        root=dataset_path, transform=transforms.ToTensor(), download=is_master, train=False
+        root=dataset_path,
+        transform=transforms.ToTensor(),
+        download=is_master,
+        train=False,
     )
     if is_master:
         # Join the workers waiting in the barrier above. They can now load the datasets from disk.
         torch.distributed.barrier()
     # Split the training dataset into a training and validation set.
     train_dataset, valid_dataset = random_split(
-        train_dataset, ((1 - val_split), val_split), torch.Generator().manual_seed(val_split_seed)
+        train_dataset,
+        ((1 - val_split), val_split),
+        torch.Generator().manual_seed(val_split_seed),
     )
     return train_dataset, valid_dataset, test_dataset
 

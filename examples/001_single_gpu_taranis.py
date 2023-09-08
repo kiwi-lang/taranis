@@ -8,13 +8,13 @@ from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import random_split
 from torchvision import transforms
-from torchvision.datasets import MNIST, CIFAR100, FakeData
+from torchvision.datasets import FakeData
 from torchvision.models import resnet18
 
 from taranis.core.dataset import Dataloader
-from taranis.core.event.manager import EventManager, Saver
-from taranis.core.event.accuracy import OnlineAccuracy, OnlineLoss, Progress, Validation
 from taranis.core.device import cpu_count
+from taranis.core.event.accuracy import OnlineAccuracy, OnlineLoss, Progress, Validation
+from taranis.core.event.manager import EventManager, Saver
 
 
 def main():
@@ -31,7 +31,7 @@ def main():
     logging.basicConfig(
         level=logging.DEBUG,
         # Very pretty, uses the `rich` package.
-        handlers=[rich.logging.RichHandler(markup=True)],  
+        handlers=[rich.logging.RichHandler(markup=True)],
     )
 
     # Create a model and move it to the GPU.
@@ -39,8 +39,8 @@ def main():
     model = model.to(device=device)
 
     optimizer = torch.optim.AdamW(
-        model.parameters(), 
-        lr=learning_rate, 
+        model.parameters(),
+        lr=learning_rate,
         weight_decay=weight_decay,
     )
 
@@ -61,7 +61,7 @@ def main():
     events.register(OnlineLoss())
     events.register(Validation(loader.validation(), model, device))
     events.register(Progress(training_epochs, len(loader.train()), frequency=1))
-    
+
     events.new_train()
     for epoch in range(training_epochs):
         events.new_epoch(epoch=epoch)
@@ -105,22 +105,24 @@ def make_datasets(
     """
     train_dataset = FakeData(
         image_size=(3, 32, 32),
-        # root=dataset_path, 
-        transform=transforms.ToTensor(), 
-        # download=True, 
+        # root=dataset_path,
+        transform=transforms.ToTensor(),
+        # download=True,
         # train=True
     )
     test_dataset = FakeData(
         size=100,
         image_size=(3, 32, 32),
-        # root=dataset_path, 
-        transform=transforms.ToTensor(), 
-        # download=True, 
+        # root=dataset_path,
+        transform=transforms.ToTensor(),
+        # download=True,
         # train=False
     )
     # Split the training dataset into a training and validation set.
     train_dataset, valid_dataset = random_split(
-        train_dataset, ((1 - val_split), val_split), torch.Generator().manual_seed(val_split_seed)
+        train_dataset,
+        ((1 - val_split), val_split),
+        torch.Generator().manual_seed(val_split_seed),
     )
     return train_dataset, valid_dataset, test_dataset
 

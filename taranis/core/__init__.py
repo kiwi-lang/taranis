@@ -29,10 +29,8 @@ def discover_plugins(module):
     return plugins
 
 
-
 def _():
     data_path = importlib_resources.files("taranis.data")
 
     with open(data_path / "data.json", encoding="utf-8") as file:
         print(json.dumps(json.load(file), indent=2))
-
