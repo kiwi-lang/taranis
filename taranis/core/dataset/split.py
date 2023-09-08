@@ -1,3 +1,6 @@
+Merged = None
+
+
 class Split:
     def __init__(self, dataset) -> None:
         self.train = None

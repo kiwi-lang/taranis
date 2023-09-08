@@ -24,7 +24,7 @@ class Observation:
     next: int = None
 
 
-def worker(wid, action, output, env, model):
+def worker_loop(wid, action, output, env, model):
     sim = 0
     step = 0
 
@@ -34,7 +34,7 @@ def worker(wid, action, output, env, model):
 
         if command is not None:
             cmd, args = command
-            if cmd == 'STOP':
+            if cmd == "STOP":
                 break
 
         action, log_probability = model.sample(obs)
@@ -60,7 +60,7 @@ def worker(wid, action, output, env, model):
 
         if done:
             if command:
-                if cmd == 'UPDATE_MODEL':
+                if cmd == "UPDATE_MODEL":
                     model.load_state_dict(args)
 
             obs = env.new()
@@ -91,8 +91,7 @@ class RLDataset:
         for i in range(count):
             action = multiprocessing.Queue()
             worker = multiprocessing.Process(
-                target=worker, 
-                args=(i, action, self.output, self.env, self.model)
+                target=worker_loop, args=(i, action, self.output, self.env, self.model)
             )
             self.workers.append((action, worker))
 
@@ -111,7 +110,7 @@ class RLDataset:
                 else:
                     self.states[self.counter % self.size] = obs
                 self.counter += 1
-    
+
     def update_model(self):
         for q, _ in self.workers:
             q.push(("UPDATE_MODEL", self.model.state_dict()))
@@ -119,7 +118,7 @@ class RLDataset:
     def stop(self):
         for q, _ in self.workers:
             q.push(("STOP", None))
-                   
+
         self.running = False
         self.thread.join()
 
@@ -128,20 +127,20 @@ class RLDataset:
 
 
 class TrajectorySampler:
-
     def __init__(self, dataset) -> None:
         self.dataset = dataset
 
 
 def astensor(x, device):
-    if not x is torch.Tensor:
+    if x is not torch.Tensor:
         x = torch.from_numpy(x).float().to(device)
     return x
 
 
 class ValueNetwork(torch.nn.Module):
     def __init__(self, in_dim=128):
-        super(ValueNetwork, self).__init__()
+        super().__init__()
+        self.device = None
 
         self.fc1 = torch.nn.Linear(in_dim, 128)
         self.fc2 = torch.nn.Linear(128, 128)
@@ -158,8 +157,8 @@ class ValueNetwork(torch.nn.Module):
         return y.squeeze(1)
 
     def state_value(self, state):
-        if not state is torch.Tensor:
-            state = torch.from_numpy(state).float().to(device)
+        if state is not torch.Tensor:
+            state = torch.from_numpy(state).float().to(self.device)
 
         if len(state.size()) == 1:
             state = state.unsqueeze(0)
@@ -167,10 +166,12 @@ class ValueNetwork(torch.nn.Module):
         y = self(state)
 
         return y.item()
-    
+
+
 class PolicyNetwork(nn.Module):
     def __init__(self, n=4, in_dim=128):
-        super(PolicyNetwork, self).__init__()  
+        super().__init__()
+        self.device = None
         self.seq = nn.Sequential(
             nn.Linear(in_dim, 128),
             nn.LeakyReLU(0.1),
@@ -178,54 +179,56 @@ class PolicyNetwork(nn.Module):
             nn.LeakyReLU(0.1),
             nn.Linear(128, 128),
             nn.LeakyReLU(0.1),
-            nn.Linear(128, n) 
+            nn.Linear(128, n),
         )
 
-    def forward(self, x):              
-        y = self.seq(x)        
-        y = F.softmax(y, dim=-1)       
-        return y    
+    def forward(self, x):
+        y = self.seq(x)
+        y = F.softmax(y, dim=-1)
+        return y
 
-    def sample_action(self, state):        
-        if not state is torch.Tensor:
-            state = torch.from_numpy(state).float().to(device)        
-            
-        if len(state.size()) == 1:
-            state = state.unsqueeze(0)        
-
-        y = self.forward(state)        
-
-        dist = nn.Categorical(y)        
-        action = dist.sample()        
-        log_probability = dist.log_prob(action)        
-
-        return action.item(), log_probability.item()    
-        
-    def best_action(self, state):        
-        if not state is torch.Tensor:
-            state = torch.from_numpy(state).float().to(device)      
+    def sample_action(self, state):
+        if state is not torch.Tensor:
+            state = torch.from_numpy(state).float().to(self.device)
 
         if len(state.size()) == 1:
-            state = state.unsqueeze(0)    
+            state = state.unsqueeze(0)
 
-        y = self(state).squeeze()        
-        action = torch.argmax(y)        
-        return action.item()    
-    
+        y = self.forward(state)
+
+        dist = nn.Categorical(y)
+        action = dist.sample()
+        log_probability = dist.log_prob(action)
+
+        return action.item(), log_probability.item()
+
+    def best_action(self, state):
+        if state is not torch.Tensor:
+            state = torch.from_numpy(state).float().to(self.device)
+
+        if len(state.size()) == 1:
+            state = state.unsqueeze(0)
+
+        y = self(state).squeeze()
+        action = torch.argmax(y)
+        return action.item()
+
     def evaluate_actions(self, states, actions):
-        y = self.forward(states) 
-        
-        dist = nn.Categorical(y)     
-        entropy = dist.entropy()        
-        log_probabilities = dist.log_prob(actions)  
-          
+        y = self.forward(states)
+
+        dist = nn.Categorical(y)
+        entropy = dist.entropy()
+        log_probabilities = dist.log_prob(actions)
+
         return log_probabilities, entropy
-    
+
 
 def main():
     import gym
 
-    env = gym.make('CartPole-v1')
+    # from torchvision.models import vit_l_32
+
+    env = gym.make("CartPole-v1")
     epoch = 100
     replay_buffer = 100000
 
@@ -234,6 +237,4 @@ def main():
     for _ in range(epoch):
 
         for batch in dataset:
-
-
-# from torchvision.models import vit_l_32
+            pass

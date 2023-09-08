@@ -171,7 +171,7 @@ class Validation(StandardObserver):
             if not distributed.has_dataset_autority():
                 self.save(
                     local_validation_loss=total_loss.items(),
-                    loval_validation_accuracy=accuracy.item() / n_samples,
+                    local_validation_accuracy=correct_predictions.item() / n_samples,
                 )
 
             else:
