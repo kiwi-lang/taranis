@@ -1,6 +1,11 @@
 import math
 
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import datasets, transforms
 
 
 def show_conv_layers(result):
@@ -22,14 +27,8 @@ def show_conv_layers(result):
     return layers
 
 
-import matplotlib.pyplot as plt
-
 # TESTS
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torchvision import datasets, transforms
+
 
 activations = (nn.ReLU,)
 

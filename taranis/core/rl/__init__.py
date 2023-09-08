@@ -236,4 +236,4 @@ def main():
         for batch in dataset:
 
 
-from torchvision.models import vit_l_32
+# from torchvision.models import vit_l_32

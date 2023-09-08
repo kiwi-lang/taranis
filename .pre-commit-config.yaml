@@ -9,7 +9,8 @@ repos:
     rev: v2.1.0
     hooks:
       - id: codespell
-        args: []
+        args:
+          - --skip="*.ipynb"
 
   - repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
