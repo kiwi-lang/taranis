@@ -190,3 +190,5 @@ class Validation(StandardObserver):
                     validation_loss=total_loss.items(),
                     validation_accuracy=accuracy.item(),
                 )
+
+
