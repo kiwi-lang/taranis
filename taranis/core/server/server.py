@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from taranis.core.server.model import PyGroup, PyRun, PyMetric, PyRunGroup, create_database
@@ -8,14 +8,12 @@ from taranis.core.server.model import Metric, Run, Group, RunGroup
 
 
 class _Server:
-    def __init__(self) -> None:
+    def __init__(self, database="sqlite:///./test.db") -> None:
         self.app = FastAPI()
 
-        DATABASE_URL = "sqlite:///./test.db"
+        create_database(database)
 
-        create_database(DATABASE_URL)
-
-        engine = create_engine(DATABASE_URL)
+        engine = create_engine(database)
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
         def get_db() -> Session:
@@ -37,12 +35,19 @@ class _Server:
             db.refresh(group)
             return group._id
 
+        @self.app.post("/group/list")
+        def list_group(db: Session = Depends(get_db)):
+            groups = []
+            for row in db.query(Group).all():
+                groups.append(row.to_json())
+            return groups
+
         @self.app.post("/group/find/{key}={value}")
         def find_group(key:str, value:str, db: Session = Depends(get_db)):
-            runs = []
+            groups = []
             for row in db.query(Group).filter(getattr(Group, key) == value).all():
-                runs.append(row.to_json())
-            return runs
+                groups.append(row.to_json())
+            return groups
         
         @self.app.post("/group/upsert")
         def upsert_group(group: PyGroup, db: Session = Depends(get_db)):
@@ -65,13 +70,11 @@ class _Server:
 
                 db.commit()
                 return exists._id
-                        
            
             group = group.to_orm()
             db.add(group)
             db.commit()
             db.refresh(group) 
-            print(group.to_json())
             return group._id
 
         @self.app.post("/run/new")
@@ -82,6 +85,13 @@ class _Server:
             db.refresh(run)
             return run._id
         
+        @self.app.post("/run/list")
+        def list_run(db: Session = Depends(get_db)):
+            runs = []
+            for row in db.query(Group).all():
+                runs.append(row.to_json())
+            return runs
+
         @self.app.post("/run/find/{key}={value}")
         def find_run(key:str, value:str, db: Session = Depends(get_db)):
             runs = []
@@ -98,7 +108,7 @@ class _Server:
             db.refresh(run_group)
             return run_group._id
 
-        @self.app.post("/metric/new/")
+        @self.app.post("/metric/new")
         def new_metric(metric: PyMetric, db: Session = Depends(get_db)):
             metric = metric.to_orm()
 
@@ -154,6 +164,14 @@ class _Server:
                 .filter(Metric.run_id == run_id).all()
             )
             return expand_metric(metrics)
+
+        @self.app.post("/sql/raw")
+        def execute_sql(sql: PySQL, db: Session = Depends(get_db)):
+            stmt = text(sql.sql)
+
+            rows = db.execute(stmt)
+
+            return list(rows)
 
 
 def main(address="127.0.0.1", port=8000):

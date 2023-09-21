@@ -9,7 +9,7 @@
 *.pkl
 *.lock
 
-data/
+/data/
 
 # StarUML documentation
 *.mdj
@@ -79,3 +79,7 @@ _build/
 
 
 .ipynb_checkpoints/
+
+
+taranis/data/taranis/node_modules
+*.db

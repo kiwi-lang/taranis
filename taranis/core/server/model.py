@@ -200,13 +200,8 @@ def create_database(uri):
         print("could not create database schema because of {err}")
 
 
-def _get_pack_ids(pack):
-    devices = pack.config.get("devices", ["ALL"])
-
-    job_id = str(pack.config.get("job-number", 0))
-    gpu_id = ",".join(str(i) for i in devices)
-
-    return job_id, gpu_id
+class PySQL(BaseModel):
+    sql: str
 
 
 if __name__ == "__main__":
