@@ -139,11 +139,13 @@
             "fp32_techpower":  "66.91 TFLOPS",
             "fp64_techpower":  "33.45 TFLOPS",
 
+            "int8_sparsity_nvidia": "3958 TOPS",
             "fp8_sparsity_nvidia": "3958 TFLOPS",
             "fp16_sparsity_nvidia": "1979 TFLOPS",
             "bf16_sparsity_nvidia": "1979 TFLOPS",
             "tf32_sparsity_nvidia": "989 TFLOPS",
 
+            "int_nvidia": "1979 TOPS",
             "fp8_nvidia": "1979 TFLOPS",
             "fp16_nvidia": "989 TFLOPS",
             "bf16_nvidia": "989 TFLOPS",
@@ -185,11 +187,13 @@
             "fp32_techpower": "51.22 TFLOPS",
             "fp64_techpower": "25.61 TFLOPS",
 
+            "int8_sparsity_nvidia": "3026 TOPS",
             "fp8_sparsity_nvidia": "3026 TFLOPS",
             "fp16_sparsity_nvidia": "1513 TFLOPS",
             "bf16_sparsity_nvidia": "1513 TFLOPS",
             "tf32_sparsity_nvidia": "756 TFLOPS",
 
+            "int8_nvidia": "1513 TOPS",
             "fp8_nvidia": "1513 TFLOPS",
             "fp16_nvidia": "756 TFLOPS",
             "bf16_nvidia": "756 TFLOPS",

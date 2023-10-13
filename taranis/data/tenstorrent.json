@@ -4,7 +4,7 @@
         "vendor": "tenstorrent",
         "release": "01/01/2021",
         "memory": {
-            "type": "",
+            "type": "DRAM",
             "size": "16 GB",
             "bus": "",
             "bandwidth": "200 GB/s"
@@ -16,12 +16,10 @@
         "die": "",
         "transitors": "",
         "performance": {
-            "fp16": "",
-            "fp32": "",
-            "fp64": "",
+            "int8": "600",
 
-            "silicon_tops": "600",
-            "software_tops": "1700"
+            "silicon": "600 TOPS",
+            "software": "1700 TOPS"
         }
     },
     {
@@ -29,7 +27,7 @@
         "vendor": "tenstorrent",
         "release": "01/01/2021",
         "memory": {
-            "type": "",
+            "type": "DRAM",
             "size": "8 GB",
             "bus": "",
             "bandwidth": "100 GB/s"
@@ -41,12 +39,10 @@
         "die": "",
         "transitors": "",
         "performance": {
-            "fp16": "",
-            "fp32": "",
-            "fp64": "",
+            "int8": "360",
 
-            "silicon_tops": "360",
-            "software_tops": "1000"
+            "silicon": "360 TOPS",
+            "software": "1000 TOPS"
         }
     },
     {
@@ -54,7 +50,7 @@
         "vendor": "tenstorrent",
         "release": "01/01/2021",
         "memory": {
-            "type": "",
+            "type": "DRAM",
             "size": "8 GB",
             "bus": "",
             "bandwidth": "100 GB/s"
@@ -66,12 +62,10 @@
         "die": "",
         "transitors": "",
         "performance": {
-            "fp16": "",
-            "fp32": "",
-            "fp64": "",
-
-            "silicon_tops": "250",
-            "software_tops": "800"
+            "int8": "250",
+        
+            "silicon": "250 TOPS",
+            "software": "800 TOPS"
         }
     }
 ]

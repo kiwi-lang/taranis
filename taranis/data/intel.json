@@ -72,7 +72,7 @@
         "source": {
             "tech": "https://www.techpowerup.com/gpu-specs/data-center-gpu-max-1550.c4068",
             "intel": "https://ark.intel.com/content/www/us/en/ark/products/232873/intel-data-center-gpu-max-1550.html",
-            "tows": "https://www.tomshardware.com/news/intel-fires-up-xeon-max-cpus-gpus-to-rival-amd-nvidia"
+            "toms": "https://www.tomshardware.com/news/intel-fires-up-xeon-max-cpus-gpus-to-rival-amd-nvidia"
         },
         "power": {
             "TDP": "600 W"

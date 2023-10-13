@@ -72,8 +72,8 @@
         "die": "750 mm2",
         "transitors": "25600 M",
         "performance": {
-            "int4": "184.6 TFLOPS",
-            "int8": "184.6 TFLOPS",
+            "int4": "184.6 TOPS",
+            "int8": "184.6 TOPS",
 
             "fp16": "184.6 TFLOPS",
             "fp32": "23.07 TFLOPS",
@@ -103,8 +103,8 @@
         "die": "724 mm2",
         "transitors": "58200 M",
         "performance": {
-            "int4": "181 TFLOPS",
-            "int8": "181 TFLOPS",
+            "int4": "181 TOPS",
+            "int8": "181 TOPS",
 
             "fp16": "181.0 TFLOPS",
             "fp32": "22.63 TFLOPS",
