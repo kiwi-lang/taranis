@@ -10,10 +10,6 @@ with open("taranis/core/__init__.py") as file:
             version = line.split("=")[1].strip().replace('"', "")
             break
 
-assert (
-    os.path.exists(os.path.join("taranis", "__init__.py")) is False
-), "taranis is a namespace not a module"
-
 extra_requires = {"plugins": ["importlib_resources"]}
 extra_requires["all"] = sorted(set(sum(extra_requires.values(), [])))
 
@@ -41,10 +37,6 @@ if __name__ == "__main__":
         ],
         setup_requires=["setuptools"],
         install_requires=["importlib_resources"],
-        namespace_packages=[
-            "taranis",
-            "taranis.plugins",
-        ],
         package_data={
             "taranis.data": [
                 "taranis/data",

@@ -1,15 +1,32 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
+
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+
 from taranis.core.server.model import PyGroup, PyRun, PyMetric, PyRunGroup, create_database
-from taranis.core.server.model import Metric, Run, Group, RunGroup
+from taranis.core.server.model import Metric, Run, Group, RunGroup, PySQL
 
 
 class _Server:
     def __init__(self, database="sqlite:///./test.db") -> None:
         self.app = FastAPI()
+
+        origins = [
+            "http://localhost",
+            "http://localhost:8080",
+            "http://localhost:3000",
+        ]
+
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
         create_database(database)
 

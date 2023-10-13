@@ -1,0 +1,80 @@
+{
+  "config": {
+    "view": {
+      "continuousWidth": 400,
+      "continuousHeight": 300
+    }
+  },
+  "layer": [
+    {
+      "data": {
+        "name": "empty"
+      },
+      "mark": "line",
+      "encoding": {
+        "color": {
+          "field": "name",
+          "type": "nominal"
+        },
+        "x": {
+          "field": "time",
+          "scale": {
+            "type": "log"
+          },
+          "type": "quantitative"
+        },
+        "y": {
+          "aggregate": "min",
+          "field": "value",
+          "type": "quantitative"
+        }
+      },
+      "transform": [
+        {
+          "filter": "(datum.metric === 'train_loss')"
+        }
+      ]
+    },
+    {
+      "data": {
+        "name": "empty"
+      },
+      "mark": {
+        "type": "line",
+        "strokeDash": [
+          1,
+          1
+        ]
+      },
+      "encoding": {
+        "color": {
+          "field": "name",
+          "type": "nominal"
+        },
+        "x": {
+          "field": "time",
+          "scale": {
+            "type": "log"
+          },
+          "type": "quantitative"
+        },
+        "y": {
+          "aggregate": "mean",
+          "field": "value",
+          "type": "quantitative"
+        }
+      },
+      "transform": [
+        {
+          "filter": "(datum.metric === 'train_loss')"
+        }
+      ]
+    }
+  ],
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.17.0.json",
+  "datasets": {
+    "empty": [
+      {}
+    ]
+  }
+}

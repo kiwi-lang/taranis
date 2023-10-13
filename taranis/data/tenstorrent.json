@@ -1,0 +1,77 @@
+[
+    {
+        "name": "e300",
+        "vendor": "tenstorrent",
+        "release": "01/01/2021",
+        "memory": {
+            "type": "",
+            "size": "16 GB",
+            "bus": "",
+            "bandwidth": "200 GB/s"
+        },
+        "power": {
+            "TDP": "300 W"
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": "",
+
+            "silicon_tops": "600",
+            "software_tops": "1700"
+        }
+    },
+    {
+        "name": "e150",
+        "vendor": "tenstorrent",
+        "release": "01/01/2021",
+        "memory": {
+            "type": "",
+            "size": "8 GB",
+            "bus": "",
+            "bandwidth": "100 GB/s"
+        },
+        "power": {
+            "TDP": "150 W"
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": "",
+
+            "silicon_tops": "360",
+            "software_tops": "1000"
+        }
+    },
+    {
+        "name": "e75",
+        "vendor": "tenstorrent",
+        "release": "01/01/2021",
+        "memory": {
+            "type": "",
+            "size": "8 GB",
+            "bus": "",
+            "bandwidth": "100 GB/s"
+        },
+        "power": {
+            "TDP": "75 W"
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": "",
+
+            "silicon_tops": "250",
+            "software_tops": "800"
+        }
+    }
+]

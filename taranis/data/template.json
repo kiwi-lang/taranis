@@ -1,0 +1,26 @@
+,
+    {
+        "name": "",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    }
