@@ -74,7 +74,7 @@ data['ratio_fp64'].fillna(data['performance_fp64'] / data[denom], inplace=True)
 data['ratio_fp16'].fillna(data['performance_fp16'] / data[denom], inplace=True)
 data['ratio_tf32'].fillna(data['performance_tf32'] / data[denom], inplace=True)
 
-print(data[["name", 'ratio_fp64', 'ratio_fp16', 'ratio_tf32', 'performance_fp32', 'transitors', 'die']])
+print(data[["name", 'ratio_fp64', 'ratio_tf32', 'ratio_fp16', 'performance_fp32', 'transitors', 'die']])
 
 
 

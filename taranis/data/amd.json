@@ -5,7 +5,7 @@
         "release": "27/06/2017",
         "source": {
             "amd": "https://www.amd.com/en/products/professional-graphics/instinct-MI25",
-            "tech": "https://www.techpowerup.com/gpu-specs/radeon-instinct-mi250.c3847"
+            "tech": "https://www.techpowerup.com/gpu-specs/radeon-instinct-mi25.c2983"
         },
         "memory": {
             "type": "HBM2",
@@ -17,6 +17,8 @@
             "TDP": "300 W"
         },
         "chip": "Vega 10",
+        "die": "495 mm2",
+        "transitors": "12500 M",
         "performance": {
             "fp16": "24.58 TFLOPS",
             "fp32": "12.29 TFLOPS",
@@ -41,6 +43,8 @@
             "TDP": "300 W"
         },
         "chip": "Vega 20",
+        "die": "331 mm2",
+        "transitors": "13230 M",
         "performance": {
             "fp16": "26.82 TFLOPS",
             "fp32": "13.41 TFLOPS",
@@ -65,6 +69,8 @@
             "TDP": "300 W"
         },
         "chip": "Arcturus",
+        "die": "750 mm2",
+        "transitors": "25600 M",
         "performance": {
             "int4": "184.6 TFLOPS",
             "int8": "184.6 TFLOPS",
@@ -94,6 +100,8 @@
             "TDP": "300 W"
         },
         "chip": "Aldebaran",
+        "die": "724 mm2",
+        "transitors": "58200 M",
         "performance": {
             "int4": "181 TFLOPS",
             "int8": "181 TFLOPS",
