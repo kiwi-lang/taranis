@@ -26,6 +26,31 @@
         }
     },
     {
+        "name": "V100 SXM2 16 GB",
+        "vendor": "nvidia",
+        "release": "21/06/2017",
+        "memory": {
+            "type": "HBM2",
+            "size": "16 GB",
+            "bus": "4096 bit",
+            "bandwidth": "897 GB/s"
+        },
+        "source": {
+            "tech": "https://www.techpowerup.com/gpu-specs/tesla-v100-sxm2-16-gb.c3018"
+        },
+        "power": {
+            "TDP": "250 W"
+        },
+        "die": "815 mm2",
+        "chip": "GV100",
+        "transitors": "21100 M",
+        "performance": {
+            "fp16": "125 TFLOPS",
+            "fp32": "15.7 TFLOPS",
+            "fp64": "7.834 TFLOPS"
+        }
+    },
+    {
         "name": "V100 SXM3 32 GB",
         "vendor": "nvidia",
         "release": "27/05/2018",
@@ -284,6 +309,281 @@
             "fp16_techpower": "38.71 TFLOPS",
             "fp32_techpower": "38.71 TFLOPS",
             "fp64_techpower": "1.210 TFLOPS"
+        }
+    },
+    {
+        "name": "A40",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A30",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A16",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A10",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A2",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "L40",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "L40S",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "l4",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A4000",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A4500",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
+        }
+    },
+    {
+        "name": "A5000",
+        "vendor": "",
+        "release": "",
+        "memory": {
+            "type": "",
+            "size": "",
+            "bus": "",
+            "bandwidth": ""
+        },
+        "source": {
+            
+        },
+        "power": {
+            "TDP": ""
+        },
+        "chip": "",
+        "die": "",
+        "transitors": "",
+        "performance": {
+            "fp16": "",
+            "fp32": "",
+            "fp64": ""
         }
     }
 ]
