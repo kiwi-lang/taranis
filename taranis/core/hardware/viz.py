@@ -12,7 +12,6 @@ data_path = importlib_resources.files("taranis.data")
 with open(data_path / "amd.json", encoding="utf-8") as file:
     amd = json.load(file)
 
-
 with open(data_path / "nvidia.json", encoding="utf-8") as file:
     nvidia = json.load(file)
 
@@ -20,13 +19,20 @@ with open(data_path / "intel.json", encoding="utf-8") as file:
     intel = json.load(file)
 
 
-data = pd.DataFrame(pd.json_normalize(nvidia + amd + intel, sep='_').to_dict(orient='records'))
-data['release'] = pd.to_datetime(data['release'], format='%d/%m/%Y')
+with open(data_path / "tenstorrent.json", encoding="utf-8") as file:
+    tens = json.load(file)
+
+
+tens = []
+
+data = pd.DataFrame(pd.json_normalize(nvidia + amd + intel + tens, sep='_').to_dict(orient='records'))
+data['release'] = pd.to_datetime(data['release'], format='%d/%m/%Y', errors='ignore')
 
 
 flops = {
+    "TOPS": 1,
     'TFLOPS': 1,
-    'GFLOPS': 1000
+    'GFLOPS': 1000,
 }
 
 transistors = {
@@ -39,7 +45,7 @@ surface = {
 
 def split_unit(name, format=None):
     data[[name, f'{name}_unit']] = data[name].str.split(' ', n=1, expand=True)
-    data[name] = data[name].astype(float)
+    data[name] = data[name].astype(float, errors='ignore')
 
     if format:
         multipliers = data[f'{name}_unit'].map(format)                 
@@ -49,13 +55,14 @@ def split_unit(name, format=None):
 start = data['release'].min()
 end = data['release'].max()
 
+split_unit('performance_int8', flops)
 split_unit('performance_fp16', flops)
 split_unit('performance_fp32', flops)
 split_unit('performance_fp64', flops)
 split_unit('performance_tf32', flops)
 split_unit('power_TDP')
-split_unit('transitors', transistors)
-split_unit('die', surface)
+# split_unit('transitors', transistors)
+# split_unit('die', surface)
 split_unit('performance_fp16_nvidia', flops)
 split_unit('performance_bf16_nvidia', flops)
 split_unit('performance_tf32_nvidia', flops)
@@ -75,7 +82,6 @@ data['ratio_fp16'].fillna(data['performance_fp16'] / data[denom], inplace=True)
 data['ratio_tf32'].fillna(data['performance_tf32'] / data[denom], inplace=True)
 
 print(data[["name", 'ratio_fp64', 'ratio_tf32', 'ratio_fp16', 'performance_fp32', 'transitors', 'die']])
-
 
 
 def graphs():
@@ -158,17 +164,29 @@ def graphs():
             as_=f'perf_per_watt_{dtype}'
         )
 
-    fp64 = perf_evol('performance_fp64')
-    fp32 = perf_evol('performance_fp32')
-    fp16 = perf_evol('performance_fp16')
+    def floats():
+        fp64 = perf_evol('performance_fp64')
+        fp32 = perf_evol('performance_fp32')
+        fp16 = perf_evol('performance_fp16')
 
-    fp64_w = perf_per_watt('performance_fp64')
-    fp32_w = perf_per_watt('performance_fp32')
-    fp16_w = perf_per_watt('performance_fp16')
+        fp64_w = perf_per_watt('performance_fp64')
+        fp32_w = perf_per_watt('performance_fp32')
+        fp16_w = perf_per_watt('performance_fp16')
 
 
-    chart = (fp64 | fp32 | fp16) & (fp64_w | fp32_w | fp16_w) 
+        chart = (fp64 | fp32 | fp16) & (fp64_w | fp32_w | fp16_w) 
 
-    chart.show()
+        chart.show()
+
+    def ints():
+        int8 = perf_evol('performance_int8')
+        int8_w = perf_per_watt('performance_int8')
+
+        chart = int8 | int8_w
+        chart.show()
+
+    # ints()
+    floats()
+
 
 graphs()
